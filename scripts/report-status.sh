@@ -3,25 +3,18 @@ set -euo pipefail
 source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
 report_file="$REPORT_DIR/status-$(date +%Y%m%d-%H%M%S).md"
-
-queued=$(jq '[.tasks[] | select(.status == "queued")] | length' "$TASKS_FILE")
-running=$(jq '[.tasks[] | select(.status == "running")] | length' "$TASKS_FILE")
-done_count=$(jq '[.tasks[] | select(.status == "done")] | length' "$TASKS_FILE")
-failed=$(jq '[.tasks[] | select(.status == "failed")] | length' "$TASKS_FILE")
-blocked=$(jq '[.tasks[] | select(.status == "blocked")] | length' "$TASKS_FILE")
-
+for status_name in queued running reviewing changes_requested done merged closed failed blocked cancelled; do
+  eval "$status_name=\$(jq '[.tasks[] | select(.status == \"'$status_name'\")] | length' \"$TASKS_FILE\")"
+done
 {
   echo "# 技术总监阶段简报"
   echo
   echo "- 生成时间：$(now_iso)"
-  echo "- queued：$queued"
-  echo "- running：$running"
-  echo "- done：$done_count"
-  echo "- failed：$failed"
-  echo "- blocked：$blocked"
+  for status_name in queued running reviewing changes_requested done merged closed failed blocked cancelled; do
+    eval "val=\$$status_name"; echo "- ${status_name}：$val"
+  done
   echo
   echo "## 任务列表"
-  jq -r '.tasks[] | "- [\(.status)] \(.taskId) | type=\(.taskType) | title=\(.title)"' "$TASKS_FILE"
+  jq -r '.tasks[] | "- [\(.status)] \(.taskId) | type=\(.taskType) | title=\(.title) | branch=\(.branch // "") | runtime=\(.runtime // "") | pr=\(.prUrl // "")"' "$TASKS_FILE"
 } > "$report_file"
-
 cat "$report_file"
