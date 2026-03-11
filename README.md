@@ -4,7 +4,7 @@ AI 技术总监项目工程。
 
 ## 项目目标
 
-把“技术总监”从一份架构文档逐步落地为一个可运行、可迁移、可扩展的项目工程，包括：
+把“技术总监”从一份架构文档逐步落地为一个可运行、可扩展的项目工程，包括：
 
 - 架构文档与运行说明
 - 身份文档体系
@@ -41,7 +41,7 @@ AI 技术总监项目工程。
 ### 2. 权限边界
 - 老板负责审 PR 与 merge
 - 技术总监负责创建分支、worktree、PR、review 跟进与清理
-- Worker 默认最小权限运行
+- Worker 当前实现为“基础版最小权限模型”，以流程约束和脚本拦截为主，不等同于强隔离
 
 ### 3. Python 项目策略
 对于大 Python + Poetry 项目：
@@ -61,6 +61,8 @@ bash install.sh
 ```
 
 ### 运行最小流程测试
+
+> 说明：测试脚本位于项目仓库内，不在安装后的 workspace 中。
 
 ```bash
 cd /home/lvrui/tech-director
@@ -91,11 +93,11 @@ bash tests/test-flow.sh
 
 已具备：
 - branch + worktree + PR 生命周期基础模型
-- Worker 最小权限基础版
+- Worker 最小权限基础版（以脚本拦截和流程约束为主）
 - review / qa / research 默认禁止 commit/push
 - 禁止 merge / force push / 直接 push 主分支
 - Python + Poetry 主环境复用策略
-- 安装脚本可将项目导入其他 OpenClaw 环境
+- 安装脚本可快速导入身份文档与脚本入口
 
 ---
 

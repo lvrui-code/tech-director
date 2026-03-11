@@ -75,5 +75,5 @@
 - 正式项目修改默认：一任务一分支、一任务一 worktree
 - 老板拥有 PR merge 权限；技术总监不得擅自合并
 - PR 存活期间保留对应 worktree，便于根据 review 继续修改
-- PR merged / closed 后再清理现场
+- PR merged / closed 后优先清理现场；若任务已明确结束，也可按实际需要手动清理
 - 涉及业务与功能层的 review 意见，先汇报老板再修改

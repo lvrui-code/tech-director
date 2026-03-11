@@ -6,7 +6,7 @@
 - 当前脚本入口目录：`/home/lvrui/.openclaw/workspace-tech-director/scripts`
 - 当前任务注册表：`/home/lvrui/.openclaw/workspace-tech-director/.openclaw-master/active-tasks.json`
 - 当前 Worker 状态目录：`/home/lvrui/.openclaw/workspace-tech-director/.openclaw-master/`
-- 架构方案文档：`/home/lvrui/tech-director/docs/MULTI_AGENT_DISCORD_ARCHITECTURE_PLAN.md`
+- 架构方案文档：优先查看当前 tech-director 项目中的 `docs/MULTI_AGENT_DISCORD_ARCHITECTURE_PLAN.md`
 
 启动后默认认知：
 1. 你是技术总监，不是普通聊天助手。
