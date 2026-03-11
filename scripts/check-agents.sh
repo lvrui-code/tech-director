@@ -14,40 +14,28 @@ for task_id in "${tasks[@]:-}"; do
   status=$(jq -r '.status' <<<"$task_json")
   pid_file="$PID_DIR/$task_id.pid"
   new_status="$status"
-  failure_reason="null"
+  failure_reason=$(jq -c '.failureReason // null' <<<"$task_json")
+
+  if preserved_status "$status"; then
+    update_task "$task_id" "$(jq -nc --arg updatedAt "$(now_iso)" --arg lastHeartbeat "$(now_iso)" '{updatedAt:$updatedAt,lastHeartbeat:$lastHeartbeat}')"
+    continue
+  fi
 
   if [[ "$mode" == "tmux" ]]; then
     if tmux has-session -t "$session" 2>/dev/null; then
-      new_status="running"
+      new_status="running"; failure_reason='null'
     else
-      if grep -q "WORKER_DONE" "$log_file" 2>/dev/null; then
-        new_status="done"
-      else
-        new_status="failed"
-        failure_reason='"tmux session exited before completion marker"'
-      fi
+      if grep -q "WORKER_DONE" "$log_file" 2>/dev/null; then new_status="done"; failure_reason='null'; else new_status="failed"; failure_reason='"tmux session exited before completion marker"'; fi
     fi
   else
     if [[ -f "$pid_file" ]] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
-      new_status="running"
+      new_status="running"; failure_reason='null'
     else
-      if grep -q "WORKER_DONE" "$log_file" 2>/dev/null; then
-        new_status="done"
-      else
-        new_status="failed"
-        failure_reason='"background worker exited before completion marker"'
-      fi
+      if grep -q "WORKER_DONE" "$log_file" 2>/dev/null; then new_status="done"; failure_reason='null'; else new_status="failed"; failure_reason='"background worker exited before completion marker"'; fi
     fi
   fi
 
-  updated_at="$(now_iso)"
-  patch=$(jq -nc \
-    --arg status "$new_status" \
-    --arg updatedAt "$updated_at" \
-    --arg lastHeartbeat "$updated_at" \
-    --argjson failureReason "$failure_reason" \
-    '{status:$status, updatedAt:$updatedAt, lastHeartbeat:$lastHeartbeat, failureReason:$failureReason}')
-  update_task "$task_id" "$patch"
+  update_task "$task_id" "$(jq -nc --arg status "$new_status" --arg updatedAt "$(now_iso)" --arg lastHeartbeat "$(now_iso)" --argjson failureReason "$failure_reason" '{status:$status, updatedAt:$updatedAt, lastHeartbeat:$lastHeartbeat, failureReason:$failureReason}')"
 done
 
 jq '.' "$TASKS_FILE"
